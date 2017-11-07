@@ -1,2 +1,2 @@
 # IODS-project
-template for IODS course projects
+This is a line from RStudio
