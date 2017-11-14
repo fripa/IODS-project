@@ -46,12 +46,11 @@ getwd()
 setwd("/Users/Frida/Dropbox/Abortforskning/opendatascience/IODS_project/data")
 
 # saving as cvs to data folder
-write.csv(analysis,"learning2014.csv")
+write.csv(analysis,"learning2014.csv", row.names = FALSE)
 
 #reading in the dataset again 
 learning2014 <- read.csv("learning2014.csv", header = TRUE, sep = ",")
-#of some reason, read.csv makes me a new variable X. Making this null to get a vlean data frame
-learning2014$X <- NULL
+
 
 #Checking the dataframe
 str(learning2014)

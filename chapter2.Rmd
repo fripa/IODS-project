@@ -1,6 +1,10 @@
-# Insert chapter 2 title here
+# RStudio Excercise 2; data analysis
 
-*Describe the work you have done this week and summarize your learning.*
+*This week I have learned a lot about data wrangling in the excellent course on Data Camp. I am still quite slow but hope I will become faster before the end of this course!*
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 
 - Describe your work and results clearly. 
 - Assume the reader has an introductory course level understanding of writing and reading R code as well as statistical methods
