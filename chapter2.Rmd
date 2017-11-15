@@ -4,8 +4,77 @@
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-```
 
-- Describe your work and results clearly. 
-- Assume the reader has an introductory course level understanding of writing and reading R code as well as statistical methods
-- Assume the reader has no previous knowledge of your data or the more advanced methods you are using  
+```
+## The data
+The data set I will use for this exercise is a subset of a data set, collected from an international survey of approachess to learning. For this subset, I have picked a few background variables (gender, age, attitude(towards statistics) and points(exam points)), and mutated three new variables based on multiple questions conserning deep learning, surface learning and strategic learning (variables deep, surf and stra). Observations where the student did not get any exam points are not included.
+Thus, the data set I will use for this exercise containes 7 variables and 166 observations.
+
+```{r}
+# reading in the data
+learning2014 <- read.csv("~/Dropbox/Abortforskning/opendatascience/IODS_project/data/learning2014.csv", header=TRUE, sep=",")
+str(learning2014)
+dim(learning2014)
+```
+## Graphical overview and descriptive statistics
+Below is an overview of the data by gender of the student (Females are in pink - I am sorry for the heteronormative approach of RStudio).
+```{r}
+#libraries
+library(ggplot2)
+library(GGally)
+
+p <- ggpairs(learning2014, mapping = aes(col=gender, alpha=0.3), lower = list(combo = wrap("facethist", bins = 20)))
+
+p
+```
+Next follows the summary statistics of the data and its variables. 
+
+```{r}
+summary(learning2014)
+
+```
+So, the mean age of students is 25.5, with a range from 17 to 55. Attitude-mean is 31.4, ranging from 14 to 50. Mean points are 22.7 (range 7 to to 33).
+
+Not surprsisingly, attitudes towards statistics is positively correlated to the points of the exam, among both males and females. More correaltions can be read from the graphic overview.
+
+## Regression model
+Let us model a linear regression model with exam points as the dependent variable. I choose to include three independent variables; attitude, age and gender, hypothesizing that in addition to attitude, also the students age and gender would affect the students scoring in the test.
+```{r}
+
+my_model <- lm(Points ~ Attitude + Age + gender, data = learning2014)
+summary(my_model)
+
+```
+I was right about attitude, as seen earlier it correlates positively and significantly with the points of the exam, with a beta-coefficient of 0.36, i.e 0.36 points more in the exam for every one-unit increase in attitude, and a extremely small p-value.
+
+
+On the contrary; gender and age has no correlation with the exam points, with p-values of 0.72 and 0.16 respectively.
+
+I will next adjust the model by leaving out the unsignificant covariates, leaving attitude as the only explanatory variable.
+
+```{r}
+my_model.2 <- lm(Points ~ Attitude, data = learning2014)
+summary(my_model.2)
+
+
+```
+In this model wiht attitude as the only explanatory variable, for every one-unit increase in attitude towards statistics, the exampoints will increase by 0.35 and this is a statistically significant result. 
+
+This linear model describes about 19 % of the variability of the observations, which is readeble from the multiple R-squared.
+
+##Diagnostic plots
+Finally, I will produce som diagnostic plots. Looking at the residuals can tell me how well (or poorly) my model represents my data. 
+Below are three commonly used diagnostic plots. 
+I) The Residual vs Fitted. This plot could show if the residulas have non-linear patterns. Looking at the Residuals vs fitted plot does not show any sign of distinct pattern among the observations. Hence, it is reasonable to assume that the residuals have a constant variance which is one of the main assumptions for linear regression.
+II) The QQ-plot. This plot shows if the residuals are normally distributted (another of the key assumption). All residuals are neatly in a straight line showing that they are normaaly distributed. 
+III) The Resuduals vs Leverage plot. This plot helps us find any influental cases, that could potentially impact the results. Such outliers are not always a bad thing, nut it is important to identify them, and sometimes even repeat the analysis after the exclusion of these outliers. In this plot, there are no evident outliers, both the upper-right and lower-right corners seem empty ande hence, outliers are not a problem in this model. 
+
+```{r}
+
+par(mfrow = c(2,2)) 
+plot(my_model.2, which=c(1,2,5))
+```
+##The End
+I hope you enjoyed reading this short summary of my work this week, I sure enjoyed writing it :)
+
+Have a good one!
