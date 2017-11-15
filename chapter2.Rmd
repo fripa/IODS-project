@@ -74,6 +74,9 @@ III) The Resuduals vs Leverage plot. This plot helps us find any influental case
 par(mfrow = c(2,2)) 
 plot(my_model.2, which=c(1,2,5))
 ```
+
+
+
 ##The End
 I hope you enjoyed reading this short summary of my work this week, I sure enjoyed writing it :)
 
