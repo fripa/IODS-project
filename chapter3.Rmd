@@ -1,0 +1,93 @@
+---
+title: "chapter3.Rmd"
+author: "Frida Gyllenberg"
+date: "22 Nov 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE} 
+## libraries
+library(tidyverse)
+library(ggplot2)
+library(GGally)
+library(gridExtra)
+```
+## The data
+The data set I will use for this exercise is a combination of two data sets on  student achievement in secondary education of two Portuguese schools. Data were collected by using school reports and questionnaires. THe two data sets regards maths and Portugese. In the combination of the two data set variables not used for joining  have been combined by averaging. Two new variables have been computed;'alc_use' is the average of 'Dalc' and 'Walc'
+and 'high_use' is TRUE if 'alc_use' is higher than 2 and FALSE otherwise.
+
+The data containes 382 observations from the following 13 variables: 
+
+
+```{r}
+
+alc <- read.csv("~/Dropbox/Abortforskning/opendatascience/IODS_project/data/alc.csv", header = TRUE, sep = ",")
+dim(alc)
+colnames(alc)
+```
+
+## Hypothesis regarding high use of alcohol
+I choose to look at four different variables and to investigate their relationship with high use of alcohol with the following hypthesis;
+i) sex: I assume high use of alcohol is more prevalent among men
+ii) absences: my hypotheisis is that high use is associated with more absence from school
+iii) activities: high use of alcohol could be related to less extra-curricular actyivities
+iv) G3 i.e. Final grade: high use during school could resoult in lower grades.
+
+## Exploring my chosen variables numerically and graphically
+I start by plotting the two numeric variables in a box plot. Regarding grades, the mean grade is lower ammong students woth high alcohol use. Student absences on the other hand are more frequent among students with high use of alcohol.
+
+```{r}
+
+g1 <- ggplot(alc, aes(x = high_use, y = G3))+ geom_boxplot() + ggtitle("Grade")
+g2 <- ggplot(alc, aes(x=high_use, y=absences)) + geom_boxplot()+ggtitle("Student absences")
+grid.arrange(g1, g2, nrow=1, ncol=2)
+
+```
+For the relation of gender and extra-curricular activities, both factors with two levels, I choose to explore them in cross-tabulations. High use of alcohol was more frequent among men than women, as almost 40% of male students (72/182) vs. 20% of females are classified as high users. 
+Regarding extra-curricular activities, there is o clear dirfference; out of 114 high users, 55  (48%) have an activity whereas out of 268 non-high user 146 (54 %) have an activity.
+```{r}
+print("Cross tabulation of alcohol use by sex")
+table(alc$high_use, alc$sex)
+print("Cross tabulation of alcohol use by activities")
+table(alc$high_use, alc$activities)
+```
+
+## Logistic regression
+modeling a logistic regression on the target variable high_use and my four chosen variables as explanatory variables. Here are the Odds Ratio (i.e. exponent of the  model estimates ) with 95% confidence intervals
+
+```{r}
+m <- glm(high_use ~ absences + sex + activities + G3, data = alc, family = "binomial")
+cbind(coef(m), confint(m))%>% exp %>% round(4)
+```
+The OR for absences is 1.10, i.e. for every unit of abscense the odds of being a high user is 10 % higher. 
+Compared to females, the odds are 2.8-fold for males to be high users.
+Regarding activities, the result is insignificant, and for the grade there is maybe some relation to lower grades as the OR is 0.93, but UCI is approaching 1 (0.9995)
+
+## Predictive power of the model
+According to my model only the variables absences and sex had a statistical relationship with high use of alcohol. I now assess the power of my model to predict in a 2x2 table of predicted vs true high use and also in a plot. 
+```{r}
+# predict() the probability of high_use
+probabilities <- predict(m, type = "response")
+
+# add the predicted probabilities to 'alc'
+alc <- mutate(alc, probability = probabilities)
+
+# use the probabilities to make a prediction of high_use
+alc <- mutate(alc, prediction = probability>0.5)
+
+# tabulate the target variable versus the predictions
+table(high_use = alc$high_use, prediction=alc$prediction)
+
+# initialize a plot of 'high_use' versus 'probability' in 'alc'
+ggplot(alc, aes(x = probability, y = high_use, col=prediction)) +
+  geom_point()
+```
+
+
+The the model found accurately 256 out of 268 non-high-users, but only 27 out of 114 true high-users. So, it is not a very good predictive model...
+
+### This is it for tonight, sorry no bonuses for me:)
