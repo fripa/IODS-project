@@ -148,7 +148,7 @@ plot(lda.fit, dimen = 2, col=classes, pch=classes)
 lda.arrows(lda.fit, myscale = 1)
 
 ```
-#Prediction
+##Prediction
 ```{r}
 #saving the crime categories from the test set
 crime.correct <- test$crime
@@ -169,7 +169,7 @@ table(correct = crime.correct, predicted = lda.pred$class)
 ```
 The prediction works well, especially on med_high and high crime rates. 
 
-# Reloading, standardizing and plotting again
+## Reloading, standardizing and plotting again
 This part was not clear to me, wonder if I got it right...
 ```{r}
 library(MASS)
