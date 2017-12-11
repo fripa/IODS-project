@@ -1,0 +1,120 @@
+---
+title: "chapter5"
+author: "Frida Gyllenberg"
+date: "5 Dec 2017"
+output: html_document
+---
+
+```{r setupp, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+#libraries
+library(tidyverse)
+library(ggplot2)
+library(GGally)
+library(corrplot)
+library(stats)
+library(FactoMineR)
+```
+## The human data
+We are using a subset of the 'human' data, gathered by the United Nations Development Programme, with the following 8 variables: 
+Edu2.FM - Ratio of females by males of proportion with at least second degree education.
+Labo.FM - Ratio of females by males of proportion in the labour force.
+Edu.Exp - Expected years of schooling
+Life.Exp - Life expectancy at birth
+GNI - Gross National Income per capita   
+Mat.Mor - Maternal mortality ratio
+Ado.Birth - Adolescent birth rate
+Parli.F - Percetange of female representatives in parliament
+
+This data set has 155 observation of the 8 variables described above. Every observation equals one country. Data for the data set has been obtained from multiple national data regsiters.
+
+```{r}
+#reading in the dataset again 
+getwd()
+human <- read.csv("human.csv", header = TRUE, sep = ",", row.names = 1)
+dim(human_)
+str(human_)
+summary(human)
+```
+
+
+## Graphic overview
+Below is a corrplot of the data set and a ggpairs plot. In the corrplot positive correlations are displayed in blue and negative correlations in red color. Color intensity and the size of the circle are proportional to the correlation coefficients.
+
+There is strong possitive correlation between eg maternal mortality and life expectancy,  negative correlation between expected education and life expectancy. When looking at the correlations one need to remember the possibility of a confounding factor not measured here, eg low socioeconomic status. 
+```{r}
+# corrplot
+ggpairs(human)
+M <- cor(human)
+corrplot(M, method = "circle")
+
+```
+
+## Principal components analysis of non-standardized variables
+PCA is used to bring out strong patterns in a data set and is often used make data easy to explore and visualize. Starting out with a PCA of the non-standardized data set.
+
+```{r}
+# perform principal component analysis (with the SVD method)
+pca_human <- prcomp(human)
+
+# draw a biplot of the principal component representation and the original variables
+biplot(pca_human, choices = 1:2, cex=c(0.8,1), col=c("grey40", "deeppink2"))
+```
+Litterally, there is only one arrow left, the GNI variable. Because the data is not standardized, the GNI variable scale is totally different from the other variables.
+
+## Principal components analysis of standardized variables
+Next repeating the same analysis, but with standardized varables.
+```{r}
+# standardize the variables
+human_std <- scale(human)
+# print out summaries of the standardized variable
+summary(human_std)
+# perform principal component analysis (with the SVD method)
+pca_human <- prcomp(human_std)
+# draw a biplot of the principal component representation and the original variables
+biplot(pca_human, choices = 1:2, cex=c(0.8,1), col=c("grey40", "deeppink2"))
+
+```
+Now we see some more results than in the previous plot. 
+A summary of the model shows the variance:
+```{r}
+s <- summary(pca_human)
+s
+```
+The first principal component PC1 is about GNI and life-expectancy-related phenomena; maternal mortality and adolescent births in one directiong and GNI and life expectancy to the other.  
+PC2 describes job market and female participation in the parliament. 
+
+## Tea data
+Next we will lokk at the data set tea, and a subset of it. Below the dimensions, structures, summaries and a graphical visualisation of the six chosen variables.
+```{r}
+data(tea)
+dim(tea)
+str(tea)
+
+# choosing only a few variables
+keep_columns <- c("Tea", "How", "how", "sugar", "where", "lunch")
+tea_time <- dplyr::select(tea, one_of(keep_columns))
+summary(tea_time)
+dim(tea_time)
+str(tea_time)
+
+
+#visualize
+gather(tea_time) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free")+ theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8)) + geom_bar()
+
+```
+# MCA
+MCA is used to detect patterns in data.
+
+```{r}
+# multiple correspondence analysis
+mca <- MCA(tea_time, graph = FALSE)
+
+# summary of the model
+summary(mca)
+
+# visualize MCA
+plot(mca, invisible=c("ind"), habillage="quali")
+```
