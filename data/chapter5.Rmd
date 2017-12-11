@@ -30,12 +30,12 @@ Parli.F - Percetange of female representatives in parliament
 
 This data set has 155 observation of the 8 variables described above. Every observation equals one country. Data for the data set has been obtained from multiple national data regsiters.
 
-```{r}
-#reading in the dataset again 
+```{r }
+
 getwd()
 human <- read.csv("human.csv", header = TRUE, sep = ",", row.names = 1)
-dim(human_)
-str(human_)
+dim(human)
+str(human)
 summary(human)
 ```
 
